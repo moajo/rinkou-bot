@@ -1,0 +1,11 @@
+{
+  "name": "rinkou-bot",
+  "version": "0.0.1",
+  "description": "notify rikou efficiently!",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
