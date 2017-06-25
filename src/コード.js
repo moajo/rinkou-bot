@@ -1,8 +1,8 @@
 // TODO: http://qiita.com/nurburg/items/744ec53477f4ae328555
 // TODO: 輪講日時をシートに突っ込んで、開始の30分前くらいに再通知する。
 
-var SLACK_API_ENDPOINT = "https://hooks.slack.com/services/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";
 var RINKOU_SPREADSHEET = "https://docs.google.com/spreadsheets/d/1BPPYNYQS-HvvDkM4HWf3O59aeVpDd53foHuCe1Solns/edit#gid=0";
+var DEBUG = false;
 
 function run() {
   // 条件にマッチする受信メールを取得
@@ -33,7 +33,9 @@ function run() {
       var content = "【ぐるみ通知だよ】\n" + m.body;
       sendHttpPost(content);
     }
-    thread.markRead(); //既読にする
+    if (!DEBUG) {
+      thread.markRead(); //既読にする
+    }
   }
 }
 
@@ -46,8 +48,7 @@ function sendHttpPost(message) {
   // var url = "http://abc.xyz.org/jira/rest/api/2/issue";
   var payload = JSON.stringify({
     "text": message,
-    // "channel": "#dev-bot"
-    "channel": "#rinkou-mail"
+    "channel": DEBUG ? "#dev-bot" : "#rinkou-mail"
   });
 
   var headers = {
@@ -63,6 +64,7 @@ function sendHttpPost(message) {
     "payload": payload
   };
 
+  var SLACK_API_ENDPOINT = loadEnv();
   var res = UrlFetchApp.fetch(SLACK_API_ENDPOINT, options);
 }
 
@@ -88,4 +90,14 @@ function parseData(msgs) {
     }
   }
   return ret;
+}
+
+function loadEnv() {
+  var spreadsheet = SpreadsheetApp.openByUrl(RINKOU_SPREADSHEET);
+  var sheets = spreadsheet.getSheets();
+  for (var i in sheets) {
+    if (sheets[i].getSheetName() == "env") {
+      return sheets[i].getRange(1, 1).getValue();
+    }
+  }
 }
